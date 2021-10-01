@@ -70,22 +70,33 @@ class SNAKE(object):
 
 class APPLE(object):
     def __init__(self):
+        self.WIDTH = 100 / 4
+        self.HEIGHT = 100 / 4
+        self.radius = 10
+        self.list_apple = []
+        self.rect = pygame.rect.Rect((SCREEN_WIDTH/2, SCREEN_HEIGHT/2, self.WIDTH, self.HEIGHT))
+  
+
+    def create_apple(self):
         random_x_pos = random.randint(0, SCREEN_WIDTH)
         random_y_pos = random.randint(0, SCREEN_HEIGHT)
-        self.x = random_x_pos
-        self.y = random_y_pos
-        WIDTH = 100 / 4
-        HEIGHT = 100 / 4
-        self.radius = 20
-        self.rect = pygame.rect.Rect((self.x, self.y, WIDTH, HEIGHT))
+        x = random_x_pos
+        y = random_y_pos
+        position = (x, y)
+        self.rect = pygame.rect.Rect((x, y, self.WIDTH, self.HEIGHT))
+        return position
 
-    def draw(self):
-        pygame.draw.circle(screen, COLOR.RED, (self.x, self.y), self.radius)
+    def draw(self, list_apple):
+        for apple_ in list_apple:
+            pygame.draw.circle(screen, COLOR.RED, apple_, self.radius)
+        # Remove previous apple
+        if len(list_apple) > 1:
+            list_apple.pop(0)
 
 
 # Set timer for apple
 spawn_apple = pygame.USEREVENT
-spawn_apple_time = 1200
+spawn_apple_time = 2000
 pygame.time.set_timer(spawn_apple, spawn_apple_time)
 
 # Object init
@@ -112,12 +123,16 @@ def main():
                     world.direction = 'DOWN'
                 if event.key == pygame.K_UP:
                     world.direction = 'UP'
+            if event.type == spawn_apple:
+                apple.list_apple.append(apple.create_apple())
+
+
 
         snake.x, snake.y = snake.change_direction()
         snake.x, snake.y = snake.reset_snake()        
         snake.draw(snake.x, snake.y)
 
-        apple.draw()
+        apple.draw(apple.list_apple)
 
         if apple.rect.colliderect(snake.rect):
             print('Touched')
@@ -128,5 +143,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
         

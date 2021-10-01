@@ -120,7 +120,7 @@ def main():
         apple.draw()
 
         if apple.rect.colliderect(snake.rect):
-            print('touch')
+            print('Touched')
 
         pygame.display.update()
         world.clock.tick(world.fps_number)

@@ -26,9 +26,6 @@ class WORLD(pygame.sprite.Sprite):
         self.fps_number = 90
         # Set direction
         self.direction = 'RIGHT'
-        # Set score
-        self.score = 0
-        self.high_score = 0
 
     def restart(self):
         world.game_active = True
@@ -56,23 +53,29 @@ class WORLD(pygame.sprite.Sprite):
         # blit wil draw the text on screen
         screen.blit(game_over_surface, game_over_rect)
 
+
+class SCORE(object):
+    def __init__(self):
+        self.score_ = 0
+        self.high_score = 0
+
     def display_score(self):
-        self.display_text('Your score: ' + str(world.score), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4)
-        self.display_text('Press SPACE to play again', SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2.5)
-        self.display_text('Press ESC to exit', SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)        
-        self.display_text('High score: ' + str(self.high_score), SCREEN_WIDTH / 2, SCREEN_HEIGHT - 100)
+        world.display_text('Your score: ' + str(self.score_), SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4)
+        world.display_text('Press SPACE to play again', SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2.5)
+        world.display_text('Press ESC to exit', SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)        
+        world.display_text('High score: ' + str(self.high_score), SCREEN_WIDTH / 2, SCREEN_HEIGHT - 100)
 
     def update_high_score(self):
-        if self.high_score < self.score:
-            self.high_score = self.score
+        if self.high_score < self.score_:
+            self.high_score = self.score_
 
 
 class SNAKE(object):
     def __init__(self):
         self.x = SCREEN_WIDTH / 2
         self.y = SCREEN_HEIGHT / 2
-        self.WIDTH = 15
-        self.HEIGHT = 15
+        self.WIDTH = 20
+        self.HEIGHT = 20
         self.speed = 3
         self.list_snake = []
         self.position = [self.x, self.y]
@@ -91,7 +94,6 @@ class SNAKE(object):
             self.y -= self.speed
         elif world.direction == 'DOWN':
             self.y += self.speed
-        return self.x, self.y
 
     def hit_wall(self):
         if self.x > SCREEN_WIDTH:
@@ -102,7 +104,6 @@ class SNAKE(object):
             world.game_active = False
         elif self.y > SCREEN_HEIGHT:
             world.game_active = False
-        return world.game_active
 
 
 class APPLE(object):
@@ -127,8 +128,6 @@ class APPLE(object):
     def draw(self, list_apple):
         for apple_ in list_apple:
             pygame.draw.circle(screen, COLOR.RED, apple_, self.radius)
-            # pygame.draw.rect(screen, COLOR.RED, self.rect)
-
         # If don't have this, the previous apple wont' disappear
         if len(list_apple) > 1:
             list_apple.pop(0)
@@ -154,11 +153,17 @@ spawn_apple = pygame.USEREVENT
 spawn_apple_time = 2000
 pygame.time.set_timer(spawn_apple, spawn_apple_time)
 
+# # Set timer for 
+# spawn_apple = pygame.USEREVENT
+# spawn_apple_time = 2000
+# pygame.time.set_timer(spawn_apple, spawn_apple_time)
+
 # Object init
 world = WORLD()
 snake = SNAKE()
 apple = APPLE()
 wall = WALL()
+score = SCORE()
 
 
 def main():
@@ -195,7 +200,7 @@ def main():
 
         if world.game_active:
             # Find snake direction
-            snake.x, snake.y = snake.change_direction()
+            snake.change_direction()
        
             # Draw snake
             snake.draw()
@@ -205,13 +210,13 @@ def main():
 
             # Check collision
             if apple.rect.colliderect(snake.rect):
-                world.score += 1
+                score.score_ += 1
 
             # Check if the snake hit the wall, game over
-            world.game_active = snake.hit_wall()
+            snake.hit_wall()
         else:
-            world.update_high_score()
-            world.display_score()
+            score.update_high_score()
+            score.display_score()
 
         pygame.display.update()
         world.clock.tick(world.fps_number)
